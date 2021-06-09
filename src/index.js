@@ -32,28 +32,31 @@ const Home = {
 }
 
 const Post = {
-    data(){
-        return{
-            loading:false,
-            error:null,
-            post:null
+    data () {
+        return {
+            post: null,
+            error: null
         }
     },
-    created(){
-        this.fetchData() //与服务器进行通讯
+    beforeRouteEnter (to, from, next) {
+        getPost(to.params.id, (err, post) => {
+            next(vm => vm.setData(err, post))
+        })
+    },
+    beforeRouteUpdate (to, from, next) {
+        this.post = null
+        getPost(to.params.id, (err, post) => {
+            this.setData(err, post)
+            next()
+        })
     },
     methods:{
-        fetchData(){
-            this.error = this.post = null;
-            this.loading = true; //打开loading显示
-            getPost(this.$route.params.id, (err, post) => {
-                this.loading = false
-                if (err) {
-                    this.error = err.toString()
-                } else {
-                    this.post = post
-                }
-            })
+        setData (err, post) {
+            if (err) {
+                this.error = err.toString()
+            } else {
+                this.post = post
+            }
         }
     },
     template:' <div class="post">\n' +
